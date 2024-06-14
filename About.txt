@@ -1,0 +1,7 @@
+Fitness App
+Keep track of workout(reps and sets)
+Set goals(weight/rep wise)
+Exercise Library
+Progress Tracking
+Nutrition Tracking
+Social Sharing

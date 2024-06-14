@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Users {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  email     String    @unique
+  username  String    @unique
+  hash      String
+  role      Role      @default(USER)
+  hashedRt  String?
+  workouts  Workout[]
+  goals     Goal[]
+
+
+  @@map("users")
+}
+
+model Exercise {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  workouts    WorkoutExercise[] @relation("ExerciseWorkouts")
+  goals       Goal[]
+
+  @@map("exercises")
+}
+
+model Workout {
+  id          Int               @id @default(autoincrement())
+  userId      Int
+  workoutDate DateTime
+  createdAt   DateTime          @default(now())
+  user        Users             @relation(fields: [userId], references: [id])
+  exercises   WorkoutExercise[] @relation("WorkoutExercises")
+
+  @@map("workouts")
+}
+
+model WorkoutExercise {
+  id         Int      @id @default(autoincrement())
+  workoutId  Int
+  exerciseId Int
+  sets       Int
+  reps       Int
+  weight     Float
+  createdAt  DateTime @default(now())
+  workout    Workout  @relation(fields: [workoutId], references: [id], name: "WorkoutExercises")
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], name: "ExerciseWorkouts")
+
+  @@map("workout_exercises")
+}
+
+
+model Goal {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  exerciseId  Int
+  targetWeight Float
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        Users     @relation(fields: [userId], references: [id])
+  exercise    Exercise  @relation(fields: [exerciseId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  USER
+}
